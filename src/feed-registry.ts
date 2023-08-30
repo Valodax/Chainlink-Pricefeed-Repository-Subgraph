@@ -28,19 +28,49 @@ export function handleAccessControllerSet(event: AccessControllerSetEvent): void
 }
 
 export function handleFeedConfirmed(event: FeedConfirmedEvent): void {
-  let entity = new FeedConfirmed(event.transaction.hash.concatI32(event.logIndex.toI32()));
-  entity.asset = event.params.asset;
-  entity.denomination = event.params.denomination;
-  entity.latestAggregator = event.params.latestAggregator;
-  entity.previousAggregator = event.params.previousAggregator;
-  entity.nextPhaseId = event.params.nextPhaseId;
-  entity.sender = event.params.sender;
+  // Feed Confirmed event is emitted when a feed is added, updated, or removed
+  let feedConfirmed = new FeedConfirmed(event.transaction.hash.concatI32(event.logIndex.toI32()));
+  feedConfirmed.asset = event.params.asset;
+  feedConfirmed.denomination = event.params.denomination;
+  feedConfirmed.latestAggregator = event.params.latestAggregator;
+  feedConfirmed.previousAggregator = event.params.previousAggregator;
+  feedConfirmed.nextPhaseId = event.params.nextPhaseId;
+  feedConfirmed.sender = event.params.sender;
 
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
+  feedConfirmed.blockNumber = event.block.number;
+  feedConfirmed.blockTimestamp = event.block.timestamp;
+  feedConfirmed.transactionHash = event.transaction.hash;
 
-  entity.save();
+  feedConfirmed.save();
+
+  let prevEntity = PriceDataFeed.load(event.params.previousAggregator); // current aggregator
+  if (prevEntity == null) {
+    // if previous aggregator is null, then this is a new feed
+    let newEntity = new PriceDataFeed(event.params.latestAggregator);
+    newEntity.asset = event.params.asset; // bytes
+    newEntity.denomination = event.params.denomination; // bytes
+    newEntity.aggregator = event.params.latestAggregator; // address
+    newEntity.live = true;
+    // save new feed and is live
+    newEntity.save();
+  } else {
+    // if previous aggregator is not null, then this is an update to the already existing feed
+    if (event.params.latestAggregator == Address.fromString("0x0000000000000000000000000000000000000000")) {
+      // if latest aggregator is null, then this is a removal of the feed
+      prevEntity.live = false;
+      prevEntity.save();
+    } else {
+      // if latest aggregator is not null, then this is an update to the feed
+      let newEntity = new PriceDataFeed(event.params.latestAggregator);
+      newEntity.asset = event.params.asset; // bytes
+      newEntity.denomination = event.params.denomination; // bytes
+      newEntity.aggregator = event.params.latestAggregator; // address
+      newEntity.live = true;
+      newEntity.save();
+      prevEntity.live = false;
+      prevEntity.save();
+    }
+  }
 }
 
 export function handleFeedProposed(event: FeedProposedEvent): void {
@@ -80,35 +110,4 @@ export function handleOwnershipTransferred(event: OwnershipTransferredEvent): vo
   entity.transactionHash = event.transaction.hash;
 
   entity.save();
-}
-
-export function handleUpdateFeed(event: FeedConfirmedEvent): void {
-  let prevEntity = PriceDataFeed.load(event.params.previousAggregator); // current aggregator
-  if (prevEntity == null) {
-    // if previous aggregator is null, then this is a new feed
-    let newEntity = new PriceDataFeed(event.params.latestAggregator);
-    newEntity.asset = event.params.asset; // bytes
-    newEntity.denomination = event.params.denomination; // bytes
-    newEntity.aggregator = event.params.latestAggregator; // address
-    newEntity.live = true;
-    // save new feed and is live
-    newEntity.save();
-  } else {
-    // if previous aggregator is not null, then this is an update to the already existing feed
-    if (event.params.latestAggregator == Address.fromString("0x0000000000000000000000000000000000000000")) {
-      // if latest aggregator is null, then this is a removal of the feed
-      prevEntity.live = false;
-      prevEntity.save();
-    } else {
-      // if latest aggregator is not null, then this is an update to the feed
-      let newEntity = new PriceDataFeed(event.params.latestAggregator);
-      newEntity.asset = event.params.asset; // bytes
-      newEntity.denomination = event.params.denomination; // bytes
-      newEntity.aggregator = event.params.latestAggregator; // address
-      newEntity.live = true;
-      newEntity.save();
-      prevEntity.live = false;
-      prevEntity.save();
-    }
-  }
 }

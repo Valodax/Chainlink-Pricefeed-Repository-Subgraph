@@ -2,7 +2,7 @@ import { assert, describe, clearStore, beforeAll, afterAll, newMockEvent, test }
 import { Address, ethereum } from "@graphprotocol/graph-ts";
 import { AccessControllerSet } from "../generated/schema";
 import { AccessControllerSet as AccessControllerSetEvent } from "../generated/FeedRegistry/FeedRegistry";
-import { handleUpdateFeed } from "../src/feed-registry";
+import { handleFeedConfirmed } from "../src/feed-registry";
 import { createAccessControllerSetEvent } from "./feed-registry-utils";
 import { FeedConfirmed } from "../generated/FeedRegistry/FeedRegistry";
 
@@ -52,7 +52,7 @@ describe("FeedRegistry", () => {
       previousAggregator,
       sender
     );
-    handleUpdateFeed(pricefeedConfirmedEvent);
+    handleFeedConfirmed(pricefeedConfirmedEvent);
     assert.fieldEquals("PriceDataFeed", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "true");
   });
 
@@ -69,7 +69,7 @@ describe("FeedRegistry", () => {
       previousAggregator,
       sender
     );
-    handleUpdateFeed(pricefeedConfirmedEvent);
+    handleFeedConfirmed(pricefeedConfirmedEvent);
     let secondConfirmedPriceFeed = createNewPriceFeedConfirmedEvent(
       asset,
       denomination,
@@ -77,7 +77,7 @@ describe("FeedRegistry", () => {
       "0x145f040dbcdff4cbe8debbd58861296012fcb269",
       sender
     );
-    handleUpdateFeed(secondConfirmedPriceFeed);
+    handleFeedConfirmed(secondConfirmedPriceFeed);
     assert.fieldEquals("PriceDataFeed", "0x64a119dcf78e7e3fced89c429f6f47bf0cd80250", "live", "true");
     assert.fieldEquals("PriceDataFeed", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "false");
   });
@@ -95,7 +95,7 @@ describe("FeedRegistry", () => {
       previousAggregator,
       sender
     );
-    handleUpdateFeed(pricefeedConfirmedEvent);
+    handleFeedConfirmed(pricefeedConfirmedEvent);
     let secondConfirmedPriceFeed = createNewPriceFeedConfirmedEvent(
       asset,
       denomination,
@@ -103,7 +103,7 @@ describe("FeedRegistry", () => {
       "0x145f040dbcdff4cbe8debbd58861296012fcb269",
       sender
     );
-    handleUpdateFeed(secondConfirmedPriceFeed);
+    handleFeedConfirmed(secondConfirmedPriceFeed);
     assert.fieldEquals("PriceDataFeed", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "false");
   });
 });
