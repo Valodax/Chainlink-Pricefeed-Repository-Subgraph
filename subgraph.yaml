@@ -1,0 +1,36 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: FeedRegistry
+    network: mainnet
+    source:
+      address: "0x47fb2585d2c56fe188d0e6ec628a38b74fceeedf"
+      abi: FeedRegistry
+      startBlock: 12864088
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AccessControllerSet
+        - FeedConfirmed
+        - FeedProposed
+        - OwnershipTransferRequested
+        - OwnershipTransferred
+      abis:
+        - name: FeedRegistry
+          file: ./abis/FeedRegistry.json
+      eventHandlers:
+        - event: AccessControllerSet(indexed address,indexed address)
+          handler: handleAccessControllerSet
+        - event: FeedConfirmed(indexed address,indexed address,indexed address,address,uint16,address)
+          handler: handleFeedConfirmed
+        - event: FeedProposed(indexed address,indexed address,indexed address,address,address)
+          handler: handleFeedProposed
+        - event: OwnershipTransferRequested(indexed address,indexed address)
+          handler: handleOwnershipTransferRequested
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+      file: ./src/feed-registry.ts
