@@ -1,60 +1,109 @@
-import {
-  assert,
-  describe,
-  test,
-  clearStore,
-  beforeAll,
-  afterAll
-} from "matchstick-as/assembly/index"
-import { Address } from "@graphprotocol/graph-ts"
-import { AccessControllerSet } from "../generated/schema"
-import { AccessControllerSet as AccessControllerSetEvent } from "../generated/FeedRegistry/FeedRegistry"
-import { handleAccessControllerSet } from "../src/feed-registry"
-import { createAccessControllerSetEvent } from "./feed-registry-utils"
+import { assert, describe, clearStore, beforeAll, afterAll, newMockEvent, test } from "matchstick-as/assembly/index";
+import { Address, ethereum } from "@graphprotocol/graph-ts";
+import { AccessControllerSet } from "../generated/schema";
+import { AccessControllerSet as AccessControllerSetEvent } from "../generated/FeedRegistry/FeedRegistry";
+import { handleUpdateFeed } from "../src/feed-registry";
+import { createAccessControllerSetEvent } from "./feed-registry-utils";
+import { FeedConfirmed } from "../generated/FeedRegistry/FeedRegistry";
 
-// Tests structure (matchstick-as >=0.5.0)
-// https://thegraph.com/docs/en/developer/matchstick/#tests-structure-0-5-0
+// For more test scenarios, see:
+// https://thegraph.com/docs/en/developer/matchstick/#write-a-unit-test
 
-describe("Describe entity assertions", () => {
-  beforeAll(() => {
-    let accessController = Address.fromString(
-      "0x0000000000000000000000000000000000000001"
-    )
-    let sender = Address.fromString(
-      "0x0000000000000000000000000000000000000001"
-    )
-    let newAccessControllerSetEvent = createAccessControllerSetEvent(
-      accessController,
+export function createNewPriceFeedConfirmedEvent(
+  asset: string,
+  denomination: string,
+  latestAggregator: string,
+  previousAggregator: string,
+  sender: string
+): FeedConfirmed {
+  let pricefeedConfirmedEvent = changetype<FeedConfirmed>(newMockEvent());
+  pricefeedConfirmedEvent.parameters = new Array();
+  pricefeedConfirmedEvent.parameters.push(
+    new ethereum.EventParam("asset", ethereum.Value.fromAddress(Address.fromString(asset)))
+  );
+  pricefeedConfirmedEvent.parameters.push(
+    new ethereum.EventParam("denomination", ethereum.Value.fromAddress(Address.fromString(denomination)))
+  );
+  pricefeedConfirmedEvent.parameters.push(
+    new ethereum.EventParam("latestAggregator", ethereum.Value.fromAddress(Address.fromString(latestAggregator)))
+  );
+  pricefeedConfirmedEvent.parameters.push(
+    new ethereum.EventParam("previousAggregator", ethereum.Value.fromAddress(Address.fromString(previousAggregator)))
+  );
+  pricefeedConfirmedEvent.parameters.push(new ethereum.EventParam("nextPhaseId", ethereum.Value.fromI32(1)));
+  pricefeedConfirmedEvent.parameters.push(
+    new ethereum.EventParam("sender", ethereum.Value.fromAddress(Address.fromString(sender)))
+  );
+
+  return pricefeedConfirmedEvent;
+}
+
+describe("FeedRegistry", () => {
+  test("Can handle PriceDataFeed Entity", () => {
+    const asset = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e";
+    const denomination = "0x0000000000000000000000000000000000000348";
+    const latestAggregator = "0x145f040dbcdff4cbe8debbd58861296012fcb269";
+    const previousAggregator = "0x0000000000000000000000000000000000000000";
+    const sender = "0x21f73d42eb58ba49ddb685dc29d3bf5c0f0373ca";
+    let pricefeedConfirmedEvent = createNewPriceFeedConfirmedEvent(
+      asset,
+      denomination,
+      latestAggregator,
+      previousAggregator,
       sender
-    )
-    handleAccessControllerSet(newAccessControllerSetEvent)
-  })
+    );
+    handleUpdateFeed(pricefeedConfirmedEvent);
+    assert.fieldEquals("PriceDataFeed", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "true");
+  });
 
-  afterAll(() => {
-    clearStore()
-  })
+  test("Can handle the case where a feed is updated", () => {
+    const asset = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e";
+    const denomination = "0x0000000000000000000000000000000000000348";
+    const latestAggregator = "0x145f040dbcdff4cbe8debbd58861296012fcb269";
+    const previousAggregator = "0x0000000000000000000000000000000000000000";
+    const sender = "0x21f73d42eb58ba49ddb685dc29d3bf5c0f0373ca";
+    let pricefeedConfirmedEvent = createNewPriceFeedConfirmedEvent(
+      asset,
+      denomination,
+      latestAggregator,
+      previousAggregator,
+      sender
+    );
+    handleUpdateFeed(pricefeedConfirmedEvent);
+    let secondConfirmedPriceFeed = createNewPriceFeedConfirmedEvent(
+      asset,
+      denomination,
+      "0x64a119dcf78e7e3fced89c429f6f47bf0cd80250",
+      "0x145f040dbcdff4cbe8debbd58861296012fcb269",
+      sender
+    );
+    handleUpdateFeed(secondConfirmedPriceFeed);
+    assert.fieldEquals("PriceDataFeed", "0x64a119dcf78e7e3fced89c429f6f47bf0cd80250", "live", "true");
+    assert.fieldEquals("PriceDataFeed", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "false");
+  });
 
-  // For more test scenarios, see:
-  // https://thegraph.com/docs/en/developer/matchstick/#write-a-unit-test
-
-  test("AccessControllerSet created and stored", () => {
-    assert.entityCount("AccessControllerSet", 1)
-
-    // 0xa16081f360e3847006db660bae1c6d1b2e17ec2a is the default address used in newMockEvent() function
-    assert.fieldEquals(
-      "AccessControllerSet",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "accessController",
-      "0x0000000000000000000000000000000000000001"
-    )
-    assert.fieldEquals(
-      "AccessControllerSet",
-      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "sender",
-      "0x0000000000000000000000000000000000000001"
-    )
-
-    // More assert options:
-    // https://thegraph.com/docs/en/developer/matchstick/#asserts
-  })
-})
+  test("Can handle the case where a feed is removed", () => {
+    const asset = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e";
+    const denomination = "0x0000000000000000000000000000000000000348";
+    const latestAggregator = "0x145f040dbcdff4cbe8debbd58861296012fcb269";
+    const previousAggregator = "0x0000000000000000000000000000000000000000";
+    const sender = "0x21f73d42eb58ba49ddb685dc29d3bf5c0f0373ca";
+    let pricefeedConfirmedEvent = createNewPriceFeedConfirmedEvent(
+      asset,
+      denomination,
+      latestAggregator,
+      previousAggregator,
+      sender
+    );
+    handleUpdateFeed(pricefeedConfirmedEvent);
+    let secondConfirmedPriceFeed = createNewPriceFeedConfirmedEvent(
+      asset,
+      denomination,
+      "0x0000000000000000000000000000000000000000",
+      "0x145f040dbcdff4cbe8debbd58861296012fcb269",
+      sender
+    );
+    handleUpdateFeed(secondConfirmedPriceFeed);
+    assert.fieldEquals("PriceDataFeed", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "false");
+  });
+});

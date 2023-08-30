@@ -1,6 +1,6 @@
 specVersion: 0.0.5
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: FeedRegistry
@@ -22,11 +22,12 @@ dataSources:
         - PriceDataFeed
       abis:
         - name: FeedRegistry
-          file: ./abis/FeedRegistry.json
+          file: FeedRegistry/abis/FeedRegistry.json
       eventHandlers:
         - event: AccessControllerSet(indexed address,indexed address)
           handler: handleAccessControllerSet
-        - event: FeedConfirmed(indexed address,indexed address,indexed address,address,uint16,address)
+        - event: FeedConfirmed(indexed address,indexed address,indexed
+            address,address,uint16,address)
           handler: handleFeedConfirmed
         - event: FeedProposed(indexed address,indexed address,indexed address,address,address)
           handler: handleFeedProposed
@@ -34,4 +35,4 @@ dataSources:
           handler: handleOwnershipTransferRequested
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
-      file: ./src/feed-registry.ts
+      file: FeedRegistry/FeedRegistry.wasm
