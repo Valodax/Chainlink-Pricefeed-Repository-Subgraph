@@ -50,11 +50,37 @@ type OwnershipTransferred @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type PriceDataFeed @entity {
+type PriceDataFeedStatus @entity {
   id: Bytes! # address
   asset: Bytes! # address
   denomination: Bytes! # address
   aggregator: Bytes! # address
   timeCreated: BigInt!
   live: Boolean! # boolean
+}
+
+type PriceDataFeed @entity {
+  id: Bytes! # address
+}
+
+# Event emitted by the AggregatorProxy contract
+type AnswerUpdated @entity(immutable: true) {
+  id: Bytes! # address
+  current: BigInt! # int256
+  roundId: BigInt! # uint256
+  updatedAt: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# Event emitted by the AggregatorProxy contract
+type NewRound @entity(immutable: true) {
+  id: Bytes!
+  roundId: BigInt! # uint256
+  startedBy: Bytes! # address
+  startedAt: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
 }

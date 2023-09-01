@@ -13,16 +13,19 @@ dataSources:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
+      file: ./src/feed-registry.ts
       entities:
         - AccessControllerSet
         - FeedConfirmed
         - FeedProposed
         - OwnershipTransferRequested
         - OwnershipTransferred
-        - PriceDataFeed
+        - PriceDataFeedStatus
       abis:
         - name: FeedRegistry
           file: ./abis/FeedRegistry.json
+        - name: AccessControlledOffchainAggregator
+          file: ./abis/AccessControlledOffchainAggregator.json
       eventHandlers:
         - event: AccessControllerSet(indexed address,indexed address)
           handler: handleAccessControllerSet
@@ -34,4 +37,26 @@ dataSources:
           handler: handleOwnershipTransferRequested
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
-      file: ./src/feed-registry.ts
+templates:
+  - name: PriceDataFeed
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: AccessControlledOffchainAggregator
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/price-data-feed.ts
+      entities:
+        - AnswerUpdated
+        - NewRound
+        - PriceDataFeed
+      abis:
+        - name: AccessControlledOffchainAggregator
+          file: ./abis/AccessControlledOffchainAggregator.json
+      eventHandlers:
+        - event: AnswerUpdated(indexed int256,indexed uint256,uint256)
+          handler: handleAnswerUpdated
+        - event: NewRound(indexed uint256,indexed address,uint256)
+          handler: handleNewRound

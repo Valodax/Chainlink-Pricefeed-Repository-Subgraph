@@ -1,4 +1,4 @@
-import { Address, Entity } from "@graphprotocol/graph-ts";
+import { Address, Entity, DataSourceContext } from "@graphprotocol/graph-ts";
 import {
   AccessControllerSet as AccessControllerSetEvent,
   FeedConfirmed as FeedConfirmedEvent,
@@ -12,8 +12,9 @@ import {
   FeedProposed,
   OwnershipTransferRequested,
   OwnershipTransferred,
-  PriceDataFeed,
+  PriceDataFeedStatus,
 } from "../generated/schema";
+import { PriceDataFeed } from "../generated/templates";
 
 export function handleAccessControllerSet(event: AccessControllerSetEvent): void {
   let entity = new AccessControllerSet(event.transaction.hash.concatI32(event.logIndex.toI32()));
@@ -43,17 +44,20 @@ export function handleFeedConfirmed(event: FeedConfirmedEvent): void {
 
   feedConfirmed.save();
 
-  let prevEntity = PriceDataFeed.load(event.params.previousAggregator); // current aggregator
+  let prevEntity = PriceDataFeedStatus.load(event.params.previousAggregator); // current aggregator
   if (prevEntity == null) {
     // if previous aggregator is null, then this is a new feed
-    let newEntity = new PriceDataFeed(event.params.latestAggregator);
+    let newEntity = new PriceDataFeedStatus(event.params.latestAggregator);
     newEntity.asset = event.params.asset; // bytes
     newEntity.denomination = event.params.denomination; // bytes
     newEntity.aggregator = event.params.latestAggregator; // address
     newEntity.timeCreated = event.block.timestamp;
     newEntity.live = true;
-    // save new feed and is live
-    newEntity.save();
+    newEntity.save(); // save new feed
+
+    let context = new DataSourceContext();
+    context.setString("id", event.params.latestAggregator.toHex());
+    PriceDataFeed.createWithContext(event.params.latestAggregator, context); // create new PriceDataFeed entity
   } else {
     // if previous aggregator is not null, then this is an update to the already existing feed
     if (event.params.latestAggregator == Address.fromString("0x0000000000000000000000000000000000000000")) {
@@ -62,15 +66,20 @@ export function handleFeedConfirmed(event: FeedConfirmedEvent): void {
       prevEntity.save();
     } else {
       // if latest aggregator is not null, then this is an update to the feed
-      let newEntity = new PriceDataFeed(event.params.latestAggregator);
+      let newEntity = new PriceDataFeedStatus(event.params.latestAggregator);
       newEntity.asset = event.params.asset; // bytes
       newEntity.denomination = event.params.denomination; // bytes
       newEntity.aggregator = event.params.latestAggregator; // address
       newEntity.timeCreated = event.block.timestamp;
-      newEntity.live = true;
-      newEntity.save();
+
       prevEntity.live = false;
+      newEntity.live = true;
       prevEntity.save();
+      newEntity.save();
+
+      let context = new DataSourceContext();
+      context.setString("id", event.params.latestAggregator.toHex());
+      PriceDataFeed.createWithContext(event.params.latestAggregator, context);
     }
   }
 }

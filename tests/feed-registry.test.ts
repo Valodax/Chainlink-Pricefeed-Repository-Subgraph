@@ -5,6 +5,7 @@ import { AccessControllerSet as AccessControllerSetEvent } from "../generated/Fe
 import { handleFeedConfirmed } from "../src/feed-registry";
 import { createAccessControllerSetEvent } from "./feed-registry-utils";
 import { FeedConfirmed } from "../generated/FeedRegistry/FeedRegistry";
+import { logStore } from "matchstick-as/assembly/store";
 
 // For more test scenarios, see:
 // https://thegraph.com/docs/en/developer/matchstick/#write-a-unit-test
@@ -105,5 +106,23 @@ describe("FeedRegistry", () => {
     );
     handleFeedConfirmed(secondConfirmedPriceFeed);
     assert.fieldEquals("PriceDataFeed", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "false");
+  });
+});
+
+describe("PriceDataFeed", () => {
+  test("Can Create a PriceDataFeed Entity", () => {
+    const asset = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e";
+    const denomination = "0x0000000000000000000000000000000000000348";
+    const latestAggregator = "0x145f040dbcdff4cbe8debbd58861296012fcb269";
+    const previousAggregator = "0x0000000000000000000000000000000000000000";
+    const sender = "0x21f73d42eb58ba49ddb685dc29d3bf5c0f0373ca";
+    let pricefeedConfirmedEvent = createNewPriceFeedConfirmedEvent(
+      asset,
+      denomination,
+      latestAggregator,
+      previousAggregator,
+      sender
+    );
+    handleFeedConfirmed(pricefeedConfirmedEvent);
   });
 });
