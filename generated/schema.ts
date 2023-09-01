@@ -732,6 +732,19 @@ export class PriceDataFeed extends Entity {
     this.set("aggregator", Value.fromBytes(value));
   }
 
+  get timeCreated(): BigInt {
+    let value = this.get("timeCreated");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timeCreated(value: BigInt) {
+    this.set("timeCreated", Value.fromBigInt(value));
+  }
+
   get live(): boolean {
     let value = this.get("live");
     if (!value || value.kind == ValueKind.NULL) {

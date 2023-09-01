@@ -50,6 +50,7 @@ export function handleFeedConfirmed(event: FeedConfirmedEvent): void {
     newEntity.asset = event.params.asset; // bytes
     newEntity.denomination = event.params.denomination; // bytes
     newEntity.aggregator = event.params.latestAggregator; // address
+    newEntity.timeCreated = event.block.timestamp;
     newEntity.live = true;
     // save new feed and is live
     newEntity.save();
@@ -65,6 +66,7 @@ export function handleFeedConfirmed(event: FeedConfirmedEvent): void {
       newEntity.asset = event.params.asset; // bytes
       newEntity.denomination = event.params.denomination; // bytes
       newEntity.aggregator = event.params.latestAggregator; // address
+      newEntity.timeCreated = event.block.timestamp;
       newEntity.live = true;
       newEntity.save();
       prevEntity.live = false;

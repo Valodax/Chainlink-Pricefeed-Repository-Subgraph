@@ -55,5 +55,6 @@ type PriceDataFeed @entity {
   asset: Bytes! # address
   denomination: Bytes! # address
   aggregator: Bytes! # address
+  timeCreated: BigInt!
   live: Boolean! # boolean
 }
