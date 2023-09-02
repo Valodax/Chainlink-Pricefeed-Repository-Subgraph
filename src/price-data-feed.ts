@@ -8,27 +8,38 @@ import {
 import { PriceDataFeed, AnswerUpdated, NewRound } from "../generated/schema";
 
 export function handleAnswerUpdated(event: AnswerUpdatedEvent): void {
-  let entity = new AnswerUpdated(event.transaction.hash.concatI32(event.logIndex.toI32()));
-  entity.current = event.params.current;
-  entity.roundId = event.params.roundId;
-  entity.updatedAt = event.params.updatedAt;
+  let answerUpdated = new AnswerUpdated(event.transaction.hash.concatI32(event.logIndex.toI32()));
+  answerUpdated.current = event.params.current;
+  answerUpdated.roundId = event.params.roundId;
+  answerUpdated.updatedAt = event.params.updatedAt;
 
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
+  answerUpdated.blockNumber = event.block.number;
+  answerUpdated.blockTimestamp = event.block.timestamp;
+  answerUpdated.transactionHash = event.transaction.hash;
+  answerUpdated.save();
 
-  entity.save();
+  let context = dataSource.context();
+  let addressString = context.getString("id");
+  let address = Address.fromString(addressString);
+  let priceDataFeed = PriceDataFeed.load(address);
+
+  if (priceDataFeed) {
+    priceDataFeed.current = event.params.current;
+    priceDataFeed.updatedAt = event.params.updatedAt;
+    priceDataFeed.roundId = event.params.roundId;
+    priceDataFeed.save();
+  }
 }
 
 export function handleNewRound(event: NewRoundEvent): void {
-  let entity = new NewRound(event.transaction.hash.concatI32(event.logIndex.toI32()));
-  entity.roundId = event.params.roundId;
-  entity.startedAt = event.params.startedAt;
-  entity.startedBy = event.params.startedBy;
+  let newRound = new NewRound(event.transaction.hash.concatI32(event.logIndex.toI32()));
+  newRound.roundId = event.params.roundId;
+  newRound.startedAt = event.params.startedAt;
+  newRound.startedBy = event.params.startedBy;
 
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
+  newRound.blockNumber = event.block.number;
+  newRound.blockTimestamp = event.block.timestamp;
+  newRound.transactionHash = event.transaction.hash;
 
-  entity.save();
+  newRound.save();
 }

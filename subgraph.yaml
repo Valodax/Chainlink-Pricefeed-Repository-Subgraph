@@ -21,6 +21,7 @@ dataSources:
         - OwnershipTransferRequested
         - OwnershipTransferred
         - PriceDataFeedStatus
+        - PriceDataFeed
       abis:
         - name: FeedRegistry
           file: ./abis/FeedRegistry.json
@@ -49,9 +50,9 @@ templates:
       language: wasm/assemblyscript
       file: ./src/price-data-feed.ts
       entities:
-        - AnswerUpdated
-        - NewRound
         - PriceDataFeed
+        - Answer Updated
+        - NewRound
       abis:
         - name: AccessControlledOffchainAggregator
           file: ./abis/AccessControlledOffchainAggregator.json

@@ -13,8 +13,9 @@ import {
   OwnershipTransferRequested,
   OwnershipTransferred,
   PriceDataFeedStatus,
+  PriceDataFeed,
 } from "../generated/schema";
-import { PriceDataFeed } from "../generated/templates";
+import { PriceDataFeed as PriceDataFeedTemplate } from "../generated/templates";
 
 export function handleAccessControllerSet(event: AccessControllerSetEvent): void {
   let entity = new AccessControllerSet(event.transaction.hash.concatI32(event.logIndex.toI32()));
@@ -55,9 +56,16 @@ export function handleFeedConfirmed(event: FeedConfirmedEvent): void {
     newEntity.live = true;
     newEntity.save(); // save new feed
 
+    // if (newEntity.aggregator == Address.fromString("0xf939e0a03fb07f59a73314e73794be0e57ac1b4e")) {
+    // Create the new Price Data Feed
+    let priceDataFeed = new PriceDataFeed(event.params.latestAggregator);
+    priceDataFeed.save();
+
+    // Create the new Price Data Feed Template
     let context = new DataSourceContext();
     context.setString("id", event.params.latestAggregator.toHex());
-    PriceDataFeed.createWithContext(event.params.latestAggregator, context); // create new PriceDataFeed entity
+    PriceDataFeedTemplate.createWithContext(event.params.latestAggregator, context);
+    //}
   } else {
     // if previous aggregator is not null, then this is an update to the already existing feed
     if (event.params.latestAggregator == Address.fromString("0x0000000000000000000000000000000000000000")) {
@@ -77,9 +85,16 @@ export function handleFeedConfirmed(event: FeedConfirmedEvent): void {
       prevEntity.save();
       newEntity.save();
 
+      //if (newEntity.aggregator == Address.fromString("0xf939e0a03fb07f59a73314e73794be0e57ac1b4e")) {
+      // Create the new Price Data Feed
+      let priceDataFeed = new PriceDataFeed(event.params.latestAggregator);
+      priceDataFeed.save();
+
+      // Create the Price Data Feed Template
       let context = new DataSourceContext();
       context.setString("id", event.params.latestAggregator.toHex());
-      PriceDataFeed.createWithContext(event.params.latestAggregator, context);
+      PriceDataFeedTemplate.createWithContext(event.params.latestAggregator, context);
+      //}
     }
   }
 }

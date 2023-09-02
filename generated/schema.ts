@@ -802,17 +802,55 @@ export class PriceDataFeed extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
-  get asset(): Bytes {
-    let value = this.get("asset");
+  get current(): BigInt | null {
+    let value = this.get("current");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
-      return value.toBytes();
+      return value.toBigInt();
     }
   }
 
-  set asset(value: Bytes) {
-    this.set("asset", Value.fromBytes(value));
+  set current(value: BigInt | null) {
+    if (!value) {
+      this.unset("current");
+    } else {
+      this.set("current", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get updatedAt(): BigInt | null {
+    let value = this.get("updatedAt");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set updatedAt(value: BigInt | null) {
+    if (!value) {
+      this.unset("updatedAt");
+    } else {
+      this.set("updatedAt", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get roundId(): BigInt | null {
+    let value = this.get("roundId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set roundId(value: BigInt | null) {
+    if (!value) {
+      this.unset("roundId");
+    } else {
+      this.set("roundId", Value.fromBigInt(<BigInt>value));
+    }
   }
 }
 
