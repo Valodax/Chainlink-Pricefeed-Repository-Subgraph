@@ -802,55 +802,43 @@ export class PriceDataFeed extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
-  get current(): BigInt | null {
-    let value = this.get("current");
+  get currentArray(): Array<BigInt> {
+    let value = this.get("currentArray");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBigInt();
+      return value.toBigIntArray();
     }
   }
 
-  set current(value: BigInt | null) {
-    if (!value) {
-      this.unset("current");
-    } else {
-      this.set("current", Value.fromBigInt(<BigInt>value));
-    }
+  set currentArray(value: Array<BigInt>) {
+    this.set("currentArray", Value.fromBigIntArray(value));
   }
 
-  get updatedAt(): BigInt | null {
-    let value = this.get("updatedAt");
+  get updatedAtArray(): Array<BigInt> {
+    let value = this.get("updatedAtArray");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBigInt();
+      return value.toBigIntArray();
     }
   }
 
-  set updatedAt(value: BigInt | null) {
-    if (!value) {
-      this.unset("updatedAt");
-    } else {
-      this.set("updatedAt", Value.fromBigInt(<BigInt>value));
-    }
+  set updatedAtArray(value: Array<BigInt>) {
+    this.set("updatedAtArray", Value.fromBigIntArray(value));
   }
 
-  get roundId(): BigInt | null {
-    let value = this.get("roundId");
+  get roundIdArray(): Array<BigInt> {
+    let value = this.get("roundIdArray");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBigInt();
+      return value.toBigIntArray();
     }
   }
 
-  set roundId(value: BigInt | null) {
-    if (!value) {
-      this.unset("roundId");
-    } else {
-      this.set("roundId", Value.fromBigInt(<BigInt>value));
-    }
+  set roundIdArray(value: Array<BigInt>) {
+    this.set("roundIdArray", Value.fromBigIntArray(value));
   }
 }
 

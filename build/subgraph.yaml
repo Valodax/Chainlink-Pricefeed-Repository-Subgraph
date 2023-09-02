@@ -52,7 +52,7 @@ templates:
       file: templates/PriceDataFeed/PriceDataFeed.wasm
       entities:
         - PriceDataFeed
-        - Answer Updated
+        - AnswerUpdated
         - NewRound
       abis:
         - name: AccessControlledOffchainAggregator

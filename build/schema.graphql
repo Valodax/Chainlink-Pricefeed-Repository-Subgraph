@@ -61,9 +61,9 @@ type PriceDataFeedStatus @entity {
 
 type PriceDataFeed @entity {
   id: Bytes! # address
-  current: BigInt # int256
-  updatedAt: BigInt # uint256
-  roundId: BigInt # uint256
+  currentArray: [BigInt!]! # int256
+  updatedAtArray: [BigInt!]! # uint256
+  roundIdArray: [BigInt!]! # uint256
 }
 
 # Event emitted by the AggregatorProxy contract

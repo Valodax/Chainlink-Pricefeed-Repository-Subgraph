@@ -51,7 +51,7 @@ templates:
       file: ./src/price-data-feed.ts
       entities:
         - PriceDataFeed
-        - Answer Updated
+        - AnswerUpdated
         - NewRound
       abis:
         - name: AccessControlledOffchainAggregator

@@ -166,8 +166,8 @@ describe("PriceDataFeed", () => {
     assert.fieldEquals(
       "PriceDataFeed",
       "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e",
-      "current",
-      BigInt.fromI64(6755600117382373).toString()
+      "currentArray",
+      `[${BigInt.fromI64(6755600117382373).toString()}]`
     );
   });
 });

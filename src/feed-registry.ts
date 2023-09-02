@@ -1,4 +1,4 @@
-import { Address, Entity, DataSourceContext } from "@graphprotocol/graph-ts";
+import { Address, Entity, DataSourceContext, BigInt } from "@graphprotocol/graph-ts";
 import {
   AccessControllerSet as AccessControllerSetEvent,
   FeedConfirmed as FeedConfirmedEvent,
@@ -59,6 +59,9 @@ export function handleFeedConfirmed(event: FeedConfirmedEvent): void {
     // if (newEntity.aggregator == Address.fromString("0xf939e0a03fb07f59a73314e73794be0e57ac1b4e")) {
     // Create the new Price Data Feed
     let priceDataFeed = new PriceDataFeed(event.params.latestAggregator);
+    priceDataFeed.currentArray = new Array<BigInt>();
+    priceDataFeed.updatedAtArray = new Array<BigInt>();
+    priceDataFeed.roundIdArray = new Array<BigInt>();
     priceDataFeed.save();
 
     // Create the new Price Data Feed Template
@@ -88,6 +91,9 @@ export function handleFeedConfirmed(event: FeedConfirmedEvent): void {
       //if (newEntity.aggregator == Address.fromString("0xf939e0a03fb07f59a73314e73794be0e57ac1b4e")) {
       // Create the new Price Data Feed
       let priceDataFeed = new PriceDataFeed(event.params.latestAggregator);
+      priceDataFeed.currentArray = new Array<BigInt>();
+      priceDataFeed.updatedAtArray = new Array<BigInt>();
+      priceDataFeed.roundIdArray = new Array<BigInt>();
       priceDataFeed.save();
 
       // Create the Price Data Feed Template

@@ -1,4 +1,4 @@
-import { Address, Entity } from "@graphprotocol/graph-ts";
+import { Address, Entity, BigInt } from "@graphprotocol/graph-ts";
 import { dataSource } from "@graphprotocol/graph-ts";
 
 import {
@@ -23,10 +23,11 @@ export function handleAnswerUpdated(event: AnswerUpdatedEvent): void {
   let address = Address.fromString(addressString);
   let priceDataFeed = PriceDataFeed.load(address);
 
+  // check if priceDataFeed exists and if it does not have a currenArray, updatedAtArray, or roundIdArray
   if (priceDataFeed) {
-    priceDataFeed.current = event.params.current;
-    priceDataFeed.updatedAt = event.params.updatedAt;
-    priceDataFeed.roundId = event.params.roundId;
+    priceDataFeed.currentArray = priceDataFeed.currentArray.concat([event.params.current]);
+    priceDataFeed.updatedAtArray = priceDataFeed.updatedAtArray.concat([event.params.updatedAt]);
+    priceDataFeed.roundIdArray = priceDataFeed.roundIdArray.concat([event.params.roundId]);
     priceDataFeed.save();
   }
 }
