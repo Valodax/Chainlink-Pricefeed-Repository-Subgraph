@@ -9,13 +9,9 @@ import {
   test,
 } from "matchstick-as/assembly/index";
 import { Address, ethereum, DataSourceContext, Value, BigInt } from "@graphprotocol/graph-ts";
-import { AccessControllerSet } from "../generated/schema";
-import { AccessControllerSet as AccessControllerSetEvent } from "../generated/FeedRegistry/FeedRegistry";
 import { handleFeedConfirmed } from "../src/feed-registry";
-import { createAccessControllerSetEvent } from "./feed-registry-utils";
 import { FeedConfirmed } from "../generated/FeedRegistry/FeedRegistry";
 import { PriceDataFeed } from "../generated/schema";
-import { logStore } from "matchstick-as/assembly/store";
 import { AnswerUpdated } from "../generated/templates/PriceDataFeed/AccessControlledOffchainAggregator";
 import { handleAnswerUpdated } from "../src/price-data-feed";
 
@@ -77,7 +73,7 @@ describe("FeedRegistry", () => {
       sender
     );
     handleFeedConfirmed(pricefeedConfirmedEvent);
-    assert.fieldEquals("PriceDataFeedStatus", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "true");
+    assert.fieldEquals("PriceDataFeedInfo", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "true");
   });
 
   test("Can handle the case where a feed is updated", () => {
@@ -102,8 +98,8 @@ describe("FeedRegistry", () => {
       sender
     );
     handleFeedConfirmed(secondConfirmedPriceFeed);
-    assert.fieldEquals("PriceDataFeedStatus", "0x64a119dcf78e7e3fced89c429f6f47bf0cd80250", "live", "true");
-    assert.fieldEquals("PriceDataFeedStatus", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "false");
+    assert.fieldEquals("PriceDataFeedInfo", "0x64a119dcf78e7e3fced89c429f6f47bf0cd80250", "live", "true");
+    assert.fieldEquals("PriceDataFeedInfo", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "false");
   });
 
   test("Can handle the case where a feed is removed", () => {
@@ -128,7 +124,7 @@ describe("FeedRegistry", () => {
       sender
     );
     handleFeedConfirmed(secondConfirmedPriceFeed);
-    assert.fieldEquals("PriceDataFeedStatus", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "false");
+    assert.fieldEquals("PriceDataFeedInfo", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "false");
   });
 });
 
@@ -149,14 +145,15 @@ describe("PriceDataFeed", () => {
       previousAggregator,
       sender
     );
-    handleFeedConfirmed(pricefeedConfirmedEvent); // create the PriceDataFeedStatus and PriceDataFeed
+    handleFeedConfirmed(pricefeedConfirmedEvent); // create the PriceDataFeedInfo and PriceDataFeed
     assert.fieldEquals(
       "PriceDataFeed",
       "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e",
       "id",
       "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e"
     );
-    // price feed has been created; now we can test the AnswerUpdated event
+
+    // price feed has been created; now we can test the AnswerUpdatedHandler
     let context = new DataSourceContext();
     context.set("id", Value.fromString(latestAggregator));
     let addressString = "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e"; // fake address
@@ -166,7 +163,7 @@ describe("PriceDataFeed", () => {
     assert.fieldEquals(
       "PriceDataFeed",
       "0xf939e0a03fb07f59a73314e73794be0e57ac1b4e",
-      "currentArray",
+      "priceDataPoints",
       `[${BigInt.fromI64(6755600117382373).toString()}]`
     );
   });

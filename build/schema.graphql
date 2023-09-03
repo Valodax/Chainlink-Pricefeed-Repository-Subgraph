@@ -1,89 +1,24 @@
-type AccessControllerSet @entity(immutable: true) {
-  id: Bytes!
-  accessController: Bytes! # address
-  sender: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type FeedConfirmed @entity(immutable: true) {
-  id: Bytes!
-  asset: Bytes! # address
-  denomination: Bytes! # address
-  latestAggregator: Bytes! # address
-  previousAggregator: Bytes! # address
-  nextPhaseId: Int! # uint16
-  sender: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type FeedProposed @entity(immutable: true) {
-  id: Bytes!
-  asset: Bytes! # address
-  denomination: Bytes! # address
-  proposedAggregator: Bytes! # address
-  currentAggregator: Bytes! # address
-  sender: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type OwnershipTransferRequested @entity(immutable: true) {
-  id: Bytes!
-  from: Bytes! # address
-  to: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type OwnershipTransferred @entity(immutable: true) {
-  id: Bytes!
-  from: Bytes! # address
-  to: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type PriceDataFeedStatus @entity {
+type PriceDataFeed @entity {
   id: Bytes! # address
+  info: Info @derivedFrom(field: "feed")
+  price: [Price!] @derivedFrom(field: "feed")
+}
+
+type Info @entity {
+  id: Bytes! # address
+  feed: PriceDataFeed!
   asset: Bytes! # address
   denomination: Bytes! # address
-  aggregator: Bytes! # address
-  timeCreated: BigInt!
+  aggregatorAddress: Bytes! # address
+  timeCreated: BigInt! # uint256
   live: Boolean! # boolean
 }
 
-type PriceDataFeed @entity {
-  id: Bytes! # address
-  currentArray: [BigInt!]! # int256
-  updatedAtArray: [BigInt!]! # uint256
-  roundIdArray: [BigInt!]! # uint256
-}
-
-# Event emitted by the AggregatorProxy contract
-type AnswerUpdated @entity(immutable: true) {
-  id: Bytes! # address
-  current: BigInt! # int256
+type Price @entity {
+  id: Bytes! # bytes - transaction hash
+  feed: PriceDataFeed! # address
+  price: BigInt! # int256
   roundId: BigInt! # uint256
-  updatedAt: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-# Event emitted by the AggregatorProxy contract
-type NewRound @entity(immutable: true) {
-  id: Bytes!
-  roundId: BigInt! # uint256
-  startedBy: Bytes! # address
-  startedAt: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  blockNumber: BigInt! # uint256
+  blockTimestamp: BigInt! # uint256
 }
