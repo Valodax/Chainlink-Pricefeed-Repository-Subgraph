@@ -3,13 +3,15 @@ import { FeedConfirmed as FeedConfirmedEvent } from "../generated/FeedRegistry/F
 import { DataFeed, FeedInfo } from "../generated/schema";
 import { DataFeed as PriceDataFeedTemplate } from "../generated/templates";
 
-const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+const ZERO_ADDRESS = Address.fromString("0x0000000000000000000000000000000000000000");
+const ID = "id";
 
 export function handleFeedConfirmed(event: FeedConfirmedEvent): void {
   // Feed Confirmed event is emitted when a feed is added, updated, or removed
   let prevFeed = FeedInfo.load(event.params.previousAggregator); // current aggregator
 
-  if (prevFeed == null || event.params.latestAggregator != Address.fromString(ZERO_ADDRESS)) {
+  // if we haven't since this previous feed before, or the next feed is not the zero address, then this is a new feed and we need to create it
+  if (prevFeed == null || event.params.latestAggregator != ZERO_ADDRESS) {
     let feed = new DataFeed(event.params.latestAggregator);
     feed.save();
 
@@ -25,13 +27,11 @@ export function handleFeedConfirmed(event: FeedConfirmedEvent): void {
 
     // Create the new Price Data Feed Template
     let context = new DataSourceContext();
-    context.setString("id", event.params.latestAggregator.toHexString());
+    context.setString(ID, event.params.latestAggregator.toHexString());
     PriceDataFeedTemplate.createWithContext(event.params.latestAggregator, context);
-  }
-
-  if (prevFeed != null) {
-    prevFeed.live = event.params.latestAggregator == Address.fromString(ZERO_ADDRESS) ? false : true;
-    if (!prevFeed.live) {
+  } else if (prevFeed != null) {
+    prevFeed.live = event.params.latestAggregator == ZERO_ADDRESS ? false : true;
+    if (prevFeed.live == false) {
       prevFeed.timeDeprecated = event.block.timestamp;
     }
     prevFeed.save();

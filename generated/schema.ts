@@ -217,6 +217,19 @@ export class FeedInfo extends Entity {
     this.set("denominationAddress", Value.fromBytes(value));
   }
 
+  get decimals(): i32 {
+    let value = this.get("decimals");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set decimals(value: i32) {
+    this.set("decimals", Value.fromI32(value));
+  }
+
   get timeCreated(): BigInt {
     let value = this.get("timeCreated");
     if (!value || value.kind == ValueKind.NULL) {
@@ -228,6 +241,23 @@ export class FeedInfo extends Entity {
 
   set timeCreated(value: BigInt) {
     this.set("timeCreated", Value.fromBigInt(value));
+  }
+
+  get timeLastPrice(): BigInt | null {
+    let value = this.get("timeLastPrice");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timeLastPrice(value: BigInt | null) {
+    if (!value) {
+      this.unset("timeLastPrice");
+    } else {
+      this.set("timeLastPrice", Value.fromBigInt(<BigInt>value));
+    }
   }
 
   get timeDeprecated(): BigInt | null {

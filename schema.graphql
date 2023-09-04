@@ -13,7 +13,9 @@ type FeedInfo @entity {
   assetAddress: Bytes! # address
   denomination: String # string
   denominationAddress: Bytes! # address
+  decimals: Int! # uint8
   timeCreated: BigInt! # uint256
+  timeLastPrice: BigInt # uint256
   timeDeprecated: BigInt # uint256
   live: Boolean! # boolean
 }
