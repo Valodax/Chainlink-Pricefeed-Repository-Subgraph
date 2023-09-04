@@ -1,13 +1,13 @@
-type PriceDataFeed @entity {
+type DataFeed @entity {
   id: Bytes! # address
-  feedInfo: Info @derivedFrom(field: "feed")
-  feedPrices: [Price!] @derivedFrom(field: "feed")
+  info: FeedInfo @derivedFrom(field: "feed")
+  prices: [DataPoint!] @derivedFrom(field: "feed")
 }
 
-type Info @entity {
+type FeedInfo @entity {
   id: Bytes! # address
   name: String # string
-  feed: PriceDataFeed!
+  feed: DataFeed!
   phaseId: Int! # uint256
   asset: String # string
   assetAddress: Bytes! # address
@@ -18,9 +18,9 @@ type Info @entity {
   live: Boolean! # boolean
 }
 
-type Price @entity {
+type DataPoint @entity {
   id: Bytes! # bytes - transaction hash
-  feed: PriceDataFeed! # address
+  feed: DataFeed! # address
   price: BigInt! # int256
   roundId: BigInt! # uint256
   blockNumber: BigInt! # uint256

@@ -15,8 +15,8 @@ dataSources:
       language: wasm/assemblyscript
       file: ./src/feed-registry.ts
       entities:
-        - PriceDataFeed
-        - Info
+        - DataFeed
+        - FeedInfo
       abis:
         - name: FeedRegistry
           file: ./abis/FeedRegistry.json
@@ -26,7 +26,7 @@ dataSources:
         - event: FeedConfirmed(indexed address,indexed address,indexed address,address,uint16,address)
           handler: handleFeedConfirmed
 templates:
-  - name: PriceDataFeed
+  - name: DataFeed
     kind: ethereum/contract
     network: mainnet
     source:
@@ -37,8 +37,8 @@ templates:
       language: wasm/assemblyscript
       file: ./src/price-data-feed.ts
       entities:
-        - PriceDataFeed
-        - Price
+        - DataFeed
+        - DataPoint
       abis:
         - name: AccessControlledOffchainAggregator
           file: ./abis/AccessControlledOffchainAggregator.json

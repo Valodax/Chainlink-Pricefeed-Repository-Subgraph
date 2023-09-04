@@ -11,7 +11,7 @@ import {
   BigDecimal
 } from "@graphprotocol/graph-ts";
 
-export class PriceDataFeed extends Entity {
+export class DataFeed extends Entity {
   constructor(id: Bytes) {
     super();
     this.set("id", Value.fromBytes(id));
@@ -19,26 +19,24 @@ export class PriceDataFeed extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save PriceDataFeed entity without an ID");
+    assert(id != null, "Cannot save DataFeed entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type PriceDataFeed must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type DataFeed must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("PriceDataFeed", id.toBytes().toHexString(), this);
+      store.set("DataFeed", id.toBytes().toHexString(), this);
     }
   }
 
-  static loadInBlock(id: Bytes): PriceDataFeed | null {
-    return changetype<PriceDataFeed | null>(
-      store.get_in_block("PriceDataFeed", id.toHexString())
+  static loadInBlock(id: Bytes): DataFeed | null {
+    return changetype<DataFeed | null>(
+      store.get_in_block("DataFeed", id.toHexString())
     );
   }
 
-  static load(id: Bytes): PriceDataFeed | null {
-    return changetype<PriceDataFeed | null>(
-      store.get("PriceDataFeed", id.toHexString())
-    );
+  static load(id: Bytes): DataFeed | null {
+    return changetype<DataFeed | null>(store.get("DataFeed", id.toHexString()));
   }
 
   get id(): Bytes {
@@ -54,28 +52,28 @@ export class PriceDataFeed extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
-  get feedInfo(): InfoLoader {
-    return new InfoLoader(
-      "PriceDataFeed",
+  get info(): FeedInfoLoader {
+    return new FeedInfoLoader(
+      "DataFeed",
       this.get("id")!
         .toBytes()
         .toHexString(),
-      "feedInfo"
+      "info"
     );
   }
 
-  get feedPrices(): PriceLoader {
-    return new PriceLoader(
-      "PriceDataFeed",
+  get prices(): DataPointLoader {
+    return new DataPointLoader(
+      "DataFeed",
       this.get("id")!
         .toBytes()
         .toHexString(),
-      "feedPrices"
+      "prices"
     );
   }
 }
 
-export class Info extends Entity {
+export class FeedInfo extends Entity {
   constructor(id: Bytes) {
     super();
     this.set("id", Value.fromBytes(id));
@@ -83,24 +81,24 @@ export class Info extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save Info entity without an ID");
+    assert(id != null, "Cannot save FeedInfo entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type Info must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type FeedInfo must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("Info", id.toBytes().toHexString(), this);
+      store.set("FeedInfo", id.toBytes().toHexString(), this);
     }
   }
 
-  static loadInBlock(id: Bytes): Info | null {
-    return changetype<Info | null>(
-      store.get_in_block("Info", id.toHexString())
+  static loadInBlock(id: Bytes): FeedInfo | null {
+    return changetype<FeedInfo | null>(
+      store.get_in_block("FeedInfo", id.toHexString())
     );
   }
 
-  static load(id: Bytes): Info | null {
-    return changetype<Info | null>(store.get("Info", id.toHexString()));
+  static load(id: Bytes): FeedInfo | null {
+    return changetype<FeedInfo | null>(store.get("FeedInfo", id.toHexString()));
   }
 
   get id(): Bytes {
@@ -263,7 +261,7 @@ export class Info extends Entity {
   }
 }
 
-export class Price extends Entity {
+export class DataPoint extends Entity {
   constructor(id: Bytes) {
     super();
     this.set("id", Value.fromBytes(id));
@@ -271,24 +269,26 @@ export class Price extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save Price entity without an ID");
+    assert(id != null, "Cannot save DataPoint entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type Price must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type DataPoint must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("Price", id.toBytes().toHexString(), this);
+      store.set("DataPoint", id.toBytes().toHexString(), this);
     }
   }
 
-  static loadInBlock(id: Bytes): Price | null {
-    return changetype<Price | null>(
-      store.get_in_block("Price", id.toHexString())
+  static loadInBlock(id: Bytes): DataPoint | null {
+    return changetype<DataPoint | null>(
+      store.get_in_block("DataPoint", id.toHexString())
     );
   }
 
-  static load(id: Bytes): Price | null {
-    return changetype<Price | null>(store.get("Price", id.toHexString()));
+  static load(id: Bytes): DataPoint | null {
+    return changetype<DataPoint | null>(
+      store.get("DataPoint", id.toHexString())
+    );
   }
 
   get id(): Bytes {
@@ -370,7 +370,7 @@ export class Price extends Entity {
   }
 }
 
-export class InfoLoader extends Entity {
+export class FeedInfoLoader extends Entity {
   _entity: string;
   _field: string;
   _id: string;
@@ -382,13 +382,13 @@ export class InfoLoader extends Entity {
     this._field = field;
   }
 
-  load(): Info[] {
+  load(): FeedInfo[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<Info[]>(value);
+    return changetype<FeedInfo[]>(value);
   }
 }
 
-export class PriceLoader extends Entity {
+export class DataPointLoader extends Entity {
   _entity: string;
   _field: string;
   _id: string;
@@ -400,8 +400,8 @@ export class PriceLoader extends Entity {
     this._field = field;
   }
 
-  load(): Price[] {
+  load(): DataPoint[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<Price[]>(value);
+    return changetype<DataPoint[]>(value);
   }
 }

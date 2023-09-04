@@ -1,36 +1,41 @@
 import { Address, dataSource } from "@graphprotocol/graph-ts";
-import { AnswerUpdated as AnswerUpdatedEvent } from "../generated/templates/PriceDataFeed/AccessControlledOffchainAggregator";
-import { PriceDataFeed, Info, Price } from "../generated/schema";
-import { AccessControlledOffchainAggregator } from "../generated/templates/PriceDataFeed/AccessControlledOffchainAggregator";
+import {
+  AnswerUpdated as AnswerUpdatedEvent,
+  AccessControlledOffchainAggregator,
+} from "../generated/templates/PriceDataFeed/AccessControlledOffchainAggregator";
+import { DataFeed, FeedInfo, DataPoint } from "../generated/schema";
+
+const ID = "id";
 
 export function handleAnswerUpdated(event: AnswerUpdatedEvent): void {
   let context = dataSource.context();
-  let addressString = context.getString("id");
+  let addressString = context.getString(ID);
   let address = Address.fromString(addressString);
-  let priceDataFeed = PriceDataFeed.load(address);
+  let dataFeed = DataFeed.load(address);
 
-  if (priceDataFeed) {
-    let info = Info.load(address);
+  if (dataFeed) {
+    let info = FeedInfo.load(address);
     if (info && info.name == null) {
       // if info exists and name is null, then this is the first price for this feed so we can add the information.
       let contract = AccessControlledOffchainAggregator.bind(address);
       let description = contract.try_description();
       if (!description.reverted) {
         info.name = description.value;
-        info.asset = description.value.split("/")[0].trim();
-        info.denomination = description.value.split("/")[1].trim();
+        let splitDescription = description.value.split("/");
+        info.asset = splitDescription[0].trim();
+        info.denomination = splitDescription[1].trim();
         info.save();
       }
     }
 
     // Create a new PriceDataPoint
-    let dataPointId = event.transaction.hash; // txHash
-    let priceDataPoint = new Price(dataPointId); // id is txHash
-    priceDataPoint.feed = priceDataFeed.id; // address
-    priceDataPoint.price = event.params.current; // BigInt
-    priceDataPoint.roundId = event.params.roundId; // BigInt
-    priceDataPoint.blockNumber = event.block.number;
-    priceDataPoint.blockTimestamp = event.params.updatedAt; // BigInt
-    priceDataPoint.save();
+    let dataPointId = event.transaction.hash; // txHash as bytes
+    let dataPoint = new DataPoint(dataPointId); // id is txHash
+    dataPoint.feed = dataFeed.id; // address of this feed
+    dataPoint.price = event.params.current; // BigInt
+    dataPoint.roundId = event.params.roundId; // BigInt
+    dataPoint.blockNumber = event.block.number;
+    dataPoint.blockTimestamp = event.params.updatedAt; // BigInt
+    dataPoint.save();
   }
 }
