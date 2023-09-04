@@ -1,23 +1,17 @@
 type DataFeed @entity {
   id: Bytes! # address
-  info: FeedInfo @derivedFrom(field: "feed")
-  prices: [DataPoint!] @derivedFrom(field: "feed")
-}
-
-type FeedInfo @entity {
-  id: Bytes! # address
   name: String # string
-  feed: DataFeed!
-  phaseId: Int! # uint256
   asset: String # string
   assetAddress: Bytes! # address
   denomination: String # string
   denominationAddress: Bytes! # address
-  decimals: Int! # uint8
+  decimals: Int # uint8
+  live: Boolean! # boolean
+  phaseId: Int! # uint256
   timeCreated: BigInt! # uint256
   timeLastPrice: BigInt # uint256
   timeDeprecated: BigInt # uint256
-  live: Boolean! # boolean
+  prices: [DataPoint!] @derivedFrom(field: "feed")
 }
 
 type DataPoint @entity {

@@ -3,7 +3,7 @@ import {
   AnswerUpdated as AnswerUpdatedEvent,
   AccessControlledOffchainAggregator,
 } from "../generated/templates/PriceDataFeed/AccessControlledOffchainAggregator";
-import { DataFeed, FeedInfo, DataPoint } from "../generated/schema";
+import { DataFeed, DataPoint } from "../generated/schema";
 
 const ZERO_ADDRESS = Address.fromString("0x0000000000000000000000000000000000000000");
 const ID = "id";
@@ -15,23 +15,22 @@ export function handleAnswerUpdated(event: AnswerUpdatedEvent): void {
   let dataFeed = DataFeed.load(address);
 
   if (dataFeed) {
-    let info = FeedInfo.load(address);
-    if (info && info.name == null && info.id !== ZERO_ADDRESS) {
+    if (dataFeed.name == null && dataFeed.id !== ZERO_ADDRESS) {
       // if info exists and name is null, then this is the first price for this feed so we can add the information.
       let contract = AccessControlledOffchainAggregator.bind(address);
       let description = contract.try_description();
       if (!description.reverted) {
-        info.name = description.value;
+        dataFeed.name = description.value;
         let splitDescription = description.value.split("/");
-        info.asset = splitDescription[0].trim();
-        info.denomination = splitDescription[1].trim();
+        dataFeed.asset = splitDescription[0].trim();
+        dataFeed.denomination = splitDescription[1].trim();
       }
       let decimals = contract.try_decimals();
       if (!decimals.reverted) {
-        info.decimals = decimals.value;
+        dataFeed.decimals = decimals.value;
       }
-      info.timeLastPrice = event.block.timestamp;
-      info.save();
+      dataFeed.timeLastPrice = event.block.timestamp;
+      dataFeed.save();
     }
 
     // Create a new PriceDataPoint

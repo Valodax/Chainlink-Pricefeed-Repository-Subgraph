@@ -52,68 +52,6 @@ export class DataFeed extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
-  get info(): FeedInfoLoader {
-    return new FeedInfoLoader(
-      "DataFeed",
-      this.get("id")!
-        .toBytes()
-        .toHexString(),
-      "info"
-    );
-  }
-
-  get prices(): DataPointLoader {
-    return new DataPointLoader(
-      "DataFeed",
-      this.get("id")!
-        .toBytes()
-        .toHexString(),
-      "prices"
-    );
-  }
-}
-
-export class FeedInfo extends Entity {
-  constructor(id: Bytes) {
-    super();
-    this.set("id", Value.fromBytes(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save FeedInfo entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.BYTES,
-        `Entities of type FeedInfo must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("FeedInfo", id.toBytes().toHexString(), this);
-    }
-  }
-
-  static loadInBlock(id: Bytes): FeedInfo | null {
-    return changetype<FeedInfo | null>(
-      store.get_in_block("FeedInfo", id.toHexString())
-    );
-  }
-
-  static load(id: Bytes): FeedInfo | null {
-    return changetype<FeedInfo | null>(store.get("FeedInfo", id.toHexString()));
-  }
-
-  get id(): Bytes {
-    let value = this.get("id");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set id(value: Bytes) {
-    this.set("id", Value.fromBytes(value));
-  }
-
   get name(): string | null {
     let value = this.get("name");
     if (!value || value.kind == ValueKind.NULL) {
@@ -129,32 +67,6 @@ export class FeedInfo extends Entity {
     } else {
       this.set("name", Value.fromString(<string>value));
     }
-  }
-
-  get feed(): Bytes {
-    let value = this.get("feed");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set feed(value: Bytes) {
-    this.set("feed", Value.fromBytes(value));
-  }
-
-  get phaseId(): i32 {
-    let value = this.get("phaseId");
-    if (!value || value.kind == ValueKind.NULL) {
-      return 0;
-    } else {
-      return value.toI32();
-    }
-  }
-
-  set phaseId(value: i32) {
-    this.set("phaseId", Value.fromI32(value));
   }
 
   get asset(): string | null {
@@ -230,6 +142,32 @@ export class FeedInfo extends Entity {
     this.set("decimals", Value.fromI32(value));
   }
 
+  get live(): boolean {
+    let value = this.get("live");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set live(value: boolean) {
+    this.set("live", Value.fromBoolean(value));
+  }
+
+  get phaseId(): i32 {
+    let value = this.get("phaseId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set phaseId(value: i32) {
+    this.set("phaseId", Value.fromI32(value));
+  }
+
   get timeCreated(): BigInt {
     let value = this.get("timeCreated");
     if (!value || value.kind == ValueKind.NULL) {
@@ -277,17 +215,14 @@ export class FeedInfo extends Entity {
     }
   }
 
-  get live(): boolean {
-    let value = this.get("live");
-    if (!value || value.kind == ValueKind.NULL) {
-      return false;
-    } else {
-      return value.toBoolean();
-    }
-  }
-
-  set live(value: boolean) {
-    this.set("live", Value.fromBoolean(value));
+  get prices(): DataPointLoader {
+    return new DataPointLoader(
+      "DataFeed",
+      this.get("id")!
+        .toBytes()
+        .toHexString(),
+      "prices"
+    );
   }
 }
 
@@ -397,24 +332,6 @@ export class DataPoint extends Entity {
 
   set blockTimestamp(value: BigInt) {
     this.set("blockTimestamp", Value.fromBigInt(value));
-  }
-}
-
-export class FeedInfoLoader extends Entity {
-  _entity: string;
-  _field: string;
-  _id: string;
-
-  constructor(entity: string, id: string, field: string) {
-    super();
-    this._entity = entity;
-    this._id = id;
-    this._field = field;
-  }
-
-  load(): FeedInfo[] {
-    let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<FeedInfo[]>(value);
   }
 }
 

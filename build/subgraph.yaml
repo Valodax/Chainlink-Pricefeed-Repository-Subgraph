@@ -16,7 +16,6 @@ dataSources:
       file: FeedRegistry/FeedRegistry.wasm
       entities:
         - DataFeed
-        - FeedInfo
       abis:
         - name: FeedRegistry
           file: FeedRegistry/abis/FeedRegistry.json

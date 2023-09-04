@@ -16,7 +16,6 @@ dataSources:
       file: ./src/feed-registry.ts
       entities:
         - DataFeed
-        - FeedInfo
       abis:
         - name: FeedRegistry
           file: ./abis/FeedRegistry.json
