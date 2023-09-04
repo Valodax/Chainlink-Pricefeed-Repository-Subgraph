@@ -11,16 +11,15 @@ export function handleAnswerUpdated(event: AnswerUpdatedEvent): void {
 
   if (priceDataFeed) {
     let info = Info.load(address);
-    if (info) {
-      if (info.name == null) {
-        let contract = AccessControlledOffchainAggregator.bind(address);
-        let description = contract.try_description();
-        if (!description.reverted) {
-          info.name = description.value;
-          info.asset = description.value.split("/")[0];
-          info.denomination = description.value.split("/")[1];
-          info.save();
-        }
+    if (info && info.name == null) {
+      // if info exists and name is null, then this is the first price for this feed so we can add the information.
+      let contract = AccessControlledOffchainAggregator.bind(address);
+      let description = contract.try_description();
+      if (!description.reverted) {
+        info.name = description.value;
+        info.asset = description.value.split("/")[0].trim();
+        info.denomination = description.value.split("/")[1].trim();
+        info.save();
       }
     }
 
