@@ -10,15 +10,17 @@ export function handleAnswerUpdated(event: AnswerUpdatedEvent): void {
   let priceDataFeed = PriceDataFeed.load(address);
 
   if (priceDataFeed) {
-    let contract = AccessControlledOffchainAggregator.bind(address);
-    let description = contract.try_description();
-    if (!description.reverted) {
-      let info = Info.load(address);
-      if (info) {
-        info.name = description.value;
-        info.asset = description.value.split("/")[0];
-        info.denomination = description.value.split("/")[1];
-        info.save();
+    let info = Info.load(address);
+    if (info) {
+      if (info.name == null) {
+        let contract = AccessControlledOffchainAggregator.bind(address);
+        let description = contract.try_description();
+        if (!description.reverted) {
+          info.name = description.value;
+          info.asset = description.value.split("/")[0];
+          info.denomination = description.value.split("/")[1];
+          info.save();
+        }
       }
     }
 
