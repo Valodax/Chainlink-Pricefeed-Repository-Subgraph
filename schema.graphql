@@ -1,16 +1,20 @@
 type PriceDataFeed @entity {
   id: Bytes! # address
-  info: Info @derivedFrom(field: "feed")
-  price: [Price!] @derivedFrom(field: "feed")
+  feedInfo: Info @derivedFrom(field: "feed")
+  feedPrices: [Price!] @derivedFrom(field: "feed")
 }
 
 type Info @entity {
   id: Bytes! # address
+  name: String # string
   feed: PriceDataFeed!
-  asset: Bytes! # address
-  denomination: Bytes! # address
-  aggregatorAddress: Bytes! # address
+  phaseId: Int! # uint256
+  asset: String # string
+  assetAddress: Bytes! # address
+  denomination: String # string
+  denominationAddress: Bytes! # address
   timeCreated: BigInt! # uint256
+  timeDeprecated: BigInt # uint256
   live: Boolean! # boolean
 }
 

@@ -54,23 +54,23 @@ export class PriceDataFeed extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
-  get info(): InfoLoader {
+  get feedInfo(): InfoLoader {
     return new InfoLoader(
       "PriceDataFeed",
       this.get("id")!
         .toBytes()
         .toHexString(),
-      "info"
+      "feedInfo"
     );
   }
 
-  get price(): PriceLoader {
+  get feedPrices(): PriceLoader {
     return new PriceLoader(
       "PriceDataFeed",
       this.get("id")!
         .toBytes()
         .toHexString(),
-      "price"
+      "feedPrices"
     );
   }
 }
@@ -116,6 +116,23 @@ export class Info extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
+  get name(): string | null {
+    let value = this.get("name");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set name(value: string | null) {
+    if (!value) {
+      this.unset("name");
+    } else {
+      this.set("name", Value.fromString(<string>value));
+    }
+  }
+
   get feed(): Bytes {
     let value = this.get("feed");
     if (!value || value.kind == ValueKind.NULL) {
@@ -129,34 +146,68 @@ export class Info extends Entity {
     this.set("feed", Value.fromBytes(value));
   }
 
-  get asset(): Bytes {
+  get phaseId(): i32 {
+    let value = this.get("phaseId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set phaseId(value: i32) {
+    this.set("phaseId", Value.fromI32(value));
+  }
+
+  get asset(): string | null {
     let value = this.get("asset");
     if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set asset(value: string | null) {
+    if (!value) {
+      this.unset("asset");
+    } else {
+      this.set("asset", Value.fromString(<string>value));
+    }
+  }
+
+  get assetAddress(): Bytes {
+    let value = this.get("assetAddress");
+    if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBytes();
     }
   }
 
-  set asset(value: Bytes) {
-    this.set("asset", Value.fromBytes(value));
+  set assetAddress(value: Bytes) {
+    this.set("assetAddress", Value.fromBytes(value));
   }
 
-  get denomination(): Bytes {
+  get denomination(): string | null {
     let value = this.get("denomination");
     if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
+      return null;
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set denomination(value: Bytes) {
-    this.set("denomination", Value.fromBytes(value));
+  set denomination(value: string | null) {
+    if (!value) {
+      this.unset("denomination");
+    } else {
+      this.set("denomination", Value.fromString(<string>value));
+    }
   }
 
-  get aggregatorAddress(): Bytes {
-    let value = this.get("aggregatorAddress");
+  get denominationAddress(): Bytes {
+    let value = this.get("denominationAddress");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -164,8 +215,8 @@ export class Info extends Entity {
     }
   }
 
-  set aggregatorAddress(value: Bytes) {
-    this.set("aggregatorAddress", Value.fromBytes(value));
+  set denominationAddress(value: Bytes) {
+    this.set("denominationAddress", Value.fromBytes(value));
   }
 
   get timeCreated(): BigInt {
@@ -179,6 +230,23 @@ export class Info extends Entity {
 
   set timeCreated(value: BigInt) {
     this.set("timeCreated", Value.fromBigInt(value));
+  }
+
+  get timeDeprecated(): BigInt | null {
+    let value = this.get("timeDeprecated");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timeDeprecated(value: BigInt | null) {
+    if (!value) {
+      this.unset("timeDeprecated");
+    } else {
+      this.set("timeDeprecated", Value.fromBigInt(<BigInt>value));
+    }
   }
 
   get live(): boolean {

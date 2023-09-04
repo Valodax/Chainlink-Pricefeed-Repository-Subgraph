@@ -12,17 +12,19 @@ export function handleFeedConfirmed(event: FeedConfirmedEvent): void {
     priceDataFeed.save();
     // if previous aggregator is null, then this is a new feed
     let priceDataFeedInfo = new Info(event.params.latestAggregator);
-    priceDataFeedInfo.asset = event.params.asset; // bytes
-    priceDataFeedInfo.denomination = event.params.denomination; // bytes
-    priceDataFeedInfo.aggregatorAddress = event.params.latestAggregator; // address
+
+    // Get the assetSymbol and denominationSymbol
+    priceDataFeedInfo.assetAddress = event.params.asset; // bytes
+    priceDataFeedInfo.denominationAddress = event.params.denomination; // bytes
     priceDataFeedInfo.timeCreated = event.block.timestamp;
+    priceDataFeedInfo.phaseId = event.params.nextPhaseId;
     priceDataFeedInfo.live = true;
     priceDataFeedInfo.feed = priceDataFeed.id;
     priceDataFeedInfo.save(); // save new feed
 
     // Create the new Price Data Feed Template
     let context = new DataSourceContext();
-    context.setString("id", event.params.latestAggregator.toHex());
+    context.setString("id", event.params.latestAggregator.toHexString());
     PriceDataFeedTemplate.createWithContext(event.params.latestAggregator, context);
     //}
   } else {
@@ -38,20 +40,21 @@ export function handleFeedConfirmed(event: FeedConfirmedEvent): void {
 
       // if latest aggregator is not null, then this is an update to the feed
       let priceDataFeedInfo = new Info(event.params.latestAggregator);
-      priceDataFeedInfo.asset = event.params.asset; // bytes
-      priceDataFeedInfo.denomination = event.params.denomination; // bytes
-      priceDataFeedInfo.aggregatorAddress = event.params.latestAggregator; // address
+      priceDataFeedInfo.assetAddress = event.params.asset; // bytes
+      priceDataFeedInfo.denominationAddress = event.params.denomination; // bytes
       priceDataFeedInfo.timeCreated = event.block.timestamp;
+      priceDataFeedInfo.phaseId = event.params.nextPhaseId;
       priceDataFeedInfo.live = true;
       priceDataFeedInfo.feed = priceDataFeed.id;
       priceDataFeedInfo.save(); // save new feed
 
       prevEntity.live = false;
+      prevEntity.timeDeprecated = event.block.timestamp;
       prevEntity.save();
 
       // Create the Price Data Feed Template
       let context = new DataSourceContext();
-      context.setString("id", event.params.latestAggregator.toHex());
+      context.setString("id", event.params.latestAggregator.toHexString());
       PriceDataFeedTemplate.createWithContext(event.params.latestAggregator, context);
     }
   }

@@ -1,17 +1,7 @@
-import {
-  assert,
-  describe,
-  clearStore,
-  beforeAll,
-  afterAll,
-  newMockEvent,
-  dataSourceMock,
-  test,
-} from "matchstick-as/assembly/index";
+import { assert, describe, newMockEvent, dataSourceMock, test } from "matchstick-as/assembly/index";
 import { Address, ethereum, DataSourceContext, Value, BigInt } from "@graphprotocol/graph-ts";
-import { handleFeedConfirmed } from "../src/feed-registry";
 import { FeedConfirmed } from "../generated/FeedRegistry/FeedRegistry";
-import { PriceDataFeed } from "../generated/schema";
+import { handleFeedConfirmed } from "../src/feed-registry";
 import { AnswerUpdated } from "../generated/templates/PriceDataFeed/AccessControlledOffchainAggregator";
 import { handleAnswerUpdated } from "../src/price-data-feed";
 
@@ -73,7 +63,8 @@ describe("FeedRegistry", () => {
       sender
     );
     handleFeedConfirmed(pricefeedConfirmedEvent);
-    assert.fieldEquals("PriceDataFeedInfo", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "true");
+    assert.fieldEquals("Info", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "true");
+    assert.fieldEquals("Info", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "denominationSymbol", "USD");
   });
 
   test("Can handle the case where a feed is updated", () => {
@@ -98,8 +89,8 @@ describe("FeedRegistry", () => {
       sender
     );
     handleFeedConfirmed(secondConfirmedPriceFeed);
-    assert.fieldEquals("PriceDataFeedInfo", "0x64a119dcf78e7e3fced89c429f6f47bf0cd80250", "live", "true");
-    assert.fieldEquals("PriceDataFeedInfo", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "false");
+    assert.fieldEquals("Info", "0x64a119dcf78e7e3fced89c429f6f47bf0cd80250", "live", "true");
+    assert.fieldEquals("Info", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "false");
   });
 
   test("Can handle the case where a feed is removed", () => {
@@ -124,7 +115,7 @@ describe("FeedRegistry", () => {
       sender
     );
     handleFeedConfirmed(secondConfirmedPriceFeed);
-    assert.fieldEquals("PriceDataFeedInfo", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "false");
+    assert.fieldEquals("Info", "0x145f040dbcdff4cbe8debbd58861296012fcb269", "live", "false");
   });
 });
 
