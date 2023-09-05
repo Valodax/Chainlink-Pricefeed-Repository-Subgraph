@@ -1,4 +1,4 @@
-# Chainlink PriceFeeds Subgraph
+# Chainlink PriceFeed Subgraph
 
 The following code is a Subgraph for The Graph's Decentralized Network. It allows individuals to get selected historical prices from the Ethereum Mainnet Chainlink Datafeeds in the PriceFeed Registry Contract: [0x47Fb2585D2C56Fe188D0E6ec628a38b74fCeeeDf](https://etherscan.io/address/0x47Fb2585D2C56Fe188D0E6ec628a38b74fCeeeDf).
 
